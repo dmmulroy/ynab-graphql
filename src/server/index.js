@@ -1,7 +1,11 @@
 const express = require('express');
 const { ApolloServer, gql } = require('apollo-server-express');
 
+const tokenMiddleware = require('../middleware/api-token');
+
 const app = express();
+
+app.use(tokenMiddleware);
 
 const typeDefs = gql`
   type User {
