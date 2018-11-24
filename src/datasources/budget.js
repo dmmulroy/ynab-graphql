@@ -18,7 +18,7 @@ class BudgetAPI extends RESTDataSource {
   }
 
   async getBudget(id) {
-    const { data } = await this.get(`budget/${id}`);
+    const { data } = await this.get(`budgets/${id}`);
 
     return data.budget;
   }

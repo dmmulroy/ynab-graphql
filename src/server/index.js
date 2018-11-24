@@ -62,6 +62,7 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     userInfo: async (_source, _args, { dataSources }) => {
+      console.log('here 0');
       return dataSources.userAPI.getUserInfo();
     },
     listBudgets: async (_source, _args, { dataSources }) => {
@@ -78,16 +79,13 @@ const dataSources = () => ({
   budgetAPI: new BudgetAPI()
 });
 
-const context = ({ req, res }) => {
-  try {
-    const [_, token] = req.get('Authorization').split(' ');
+const context = ({ req }) => {
+  const authorizationHeader = req.headers.authorization || '';
 
-    if (!token) return res.status(401).end();
+  const [_bearer, token] = authorizationHeader.split(' ');
+  console.log('token', token);
 
-    return { token };
-  } catch (err) {
-    return res.status(401).end();
-  }
+  return { token };
 };
 
 const server = new ApolloServer({ typeDefs, resolvers, dataSources, context });
