@@ -1,12 +1,95 @@
-const express = require('express');
+const { ApolloServer, gql } = require('apollo-server');
 
-const apolloServer = require('./apollo-server');
-const tokenMiddleware = require('../middleware/api-token');
+const UserAPI = require('../datasources/user');
+const BudgetAPI = require('../datasources/budget');
 
-const app = express();
+const typeDefs = gql`
+  type User {
+    id: String
+  }
 
-app.use(tokenMiddleware);
+  type DateFormat {
+    format: String
+  }
 
-apolloServer.applyMiddleware({ app });
+  type CurrencyFormat {
+    iso_code: String
+    example_format: String
+    decimal_digits: Int
+    decimial_separator: String
+    symbol_first: Boolean
+    group_separator: String
+    currency_symbol: String
+    display_symbol: Boolean
+  }
 
-module.exports = app;
+  type Account {
+    id: String
+    name: String
+    type: String
+    on_budget: Boolean
+    closed: Boolean
+    note: String
+    balance: Float
+    cleared_balance: Float
+    uncleared_balance: Float
+    transfer_payee_id: String
+    deleted: Boolean
+  }
+
+  type Budget {
+    id: String
+    name: String
+    last_modified_on: String
+    date_format: DateFormat
+    currency_format: CurrencyFormat
+    accounts: [Account]
+  }
+
+  type Error {
+    id: String
+    name: String
+    detail: String
+  }
+
+  type Query {
+    userInfo: User
+    listBudgets: [Budget]
+    singleBudget(id: String!): Budget
+  }
+`;
+
+const resolvers = {
+  Query: {
+    userInfo: async (_source, _args, { dataSources }) => {
+      return dataSources.userAPI.getUserInfo();
+    },
+    listBudgets: async (_source, _args, { dataSources }) => {
+      return dataSources.budgetAPI.getBudgets();
+    },
+    singleBudget: async (_source, { id }, { dataSources }) => {
+      return dataSources.budgetAPI.getBudget(id);
+    }
+  }
+};
+
+const dataSources = () => ({
+  userAPI: new UserAPI(),
+  budgetAPI: new BudgetAPI()
+});
+
+const context = ({ req, res }) => {
+  try {
+    const [_, token] = req.get('Authorization').split(' ');
+
+    if (!token) return res.status(401).end();
+
+    return { token };
+  } catch (err) {
+    return res.status(401).end();
+  }
+};
+
+const server = new ApolloServer({ typeDefs, resolvers, dataSources, context });
+
+module.exports = server;

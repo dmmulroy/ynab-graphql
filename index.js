@@ -1,9 +1,4 @@
-
-const http = require('http');
-
-const app = require('./src/server');
-
-const server = http.createServer(app);
+const server = require('./src/server');
 
 server.listen(3000, err => {
   if (err) console.log('error starting server', err);
