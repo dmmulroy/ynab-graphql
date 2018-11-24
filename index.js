@@ -1,8 +1,6 @@
 const server = require('./src/server');
 
 server
-  .listen(3000, err => {
-    if (err) console.log('error starting server', err);
-    console.log('server running on port', 3000);
-  })
-  .then(({ url }) => console.log('url', url));
+  .listen(3000)
+  .then(({ url }) => console.log(`ynab-graphql running at ${url}`))
+  .catch(err => console.log('error starting server', err));

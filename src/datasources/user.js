@@ -12,9 +12,8 @@ class UserAPI extends RESTDataSource {
   }
 
   async getUserInfo() {
-    console.log('here 1');
     const { data } = await this.get('user');
-    console.log('here 2');
+
     return data.user;
   }
 }

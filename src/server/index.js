@@ -53,23 +53,22 @@ const typeDefs = gql`
   }
 
   type Query {
-    userInfo: User
-    listBudgets: [Budget]
-    singleBudget(id: String!): Budget
+    user: User
+    budgets: [Budget]
+    budgetById(id: String!): Budget
   }
 `;
 
 const resolvers = {
   Query: {
-    userInfo: async (_source, _args, { dataSources }) => {
-      console.log('here 0');
+    user: async (_source, _args, { dataSources }) => {
       return dataSources.userAPI.getUserInfo();
     },
-    listBudgets: async (_source, _args, { dataSources }) => {
+    budgets: async (_source, _args, { dataSources }) => {
       return dataSources.budgetAPI.getBudgets();
     },
-    singleBudget: async (_source, { id }, { dataSources }) => {
-      return dataSources.budgetAPI.getBudget(id);
+    budgetById: async (_source, { id }, { dataSources }) => {
+      return dataSources.budgetAPI.getBudgetById(id);
     }
   }
 };
@@ -83,7 +82,6 @@ const context = ({ req }) => {
   const authorizationHeader = req.headers.authorization || '';
 
   const [_bearer, token] = authorizationHeader.split(' ');
-  console.log('token', token);
 
   return { token };
 };
